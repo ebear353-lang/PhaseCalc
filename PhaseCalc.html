@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор распределения по фазам</title>
+<style>
+  /* ============ ОГНЕННАЯ ТЕМА ============ */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    color: #ffe8d0;
+    background: #1a0d06;
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(255,120,0,0.15), transparent 50%),
+      radial-gradient(circle at 80% 100%, rgba(255,40,0,0.15), transparent 50%);
+    background-attachment: fixed;
+  }
+
+  h1 {
+    font-size: 22px;
+    background: linear-gradient(90deg, #ffb347, #ff5e00, #ff2200);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 20px rgba(255,90,0,0.4);
+    margin-bottom: 4px;
+  }
+  h2 { font-size: 16px; margin-top: 20px; color: #ffb347; }
+
+  table {
+    border-collapse: collapse; width: 100%; max-width: 1100px;
+    background: #2a1408; margin-top:10px;
+    box-shadow: 0 0 15px rgba(255,80,0,0.2);
+  }
+  th, td {
+    border:1px solid #5a2a10; padding:6px 8px;
+    text-align:left; font-size:14px; color:#ffe8d0;
+  }
+  th { background: linear-gradient(180deg, #3d1a08, #2a1408); color:#ffb347; }
+
+  input[type="text"], input[type="number"] {
+    width:100%; box-sizing:border-box; padding:4px; font-size:14px;
+    background:#1a0d06; color:#ffe8d0; border:1px solid #5a2a10; border-radius:3px;
+  }
+  input[type="text"]:focus, input[type="number"]:focus {
+    outline:none; border-color:#ff5e00; box-shadow:0 0 6px rgba(255,94,0,0.6);
+  }
+
+  button {
+    padding:6px 12px; font-size:14px; cursor:pointer; margin-top:10px;
+    background:#3d1a08; color:#ffb347; border:1px solid #7a3a10; border-radius:3px;
+    transition: all 0.15s;
+  }
+  button:hover {
+    background:#5a2a10; color:#ffd9a0; box-shadow:0 0 10px rgba(255,94,0,0.5);
+  }
+  button.del { padding:2px 8px; background:#7a1a00; color:#fff; border:none; }
+  button.del:hover { background:#b32a00; }
+  button.calc {
+    background: linear-gradient(180deg, #ff8c00, #ff4500);
+    color:#fff; border:none; padding:10px 20px; font-size:15px; font-weight:bold;
+    box-shadow: 0 0 15px rgba(255,94,0,0.6);
+  }
+  button.calc:hover {
+    background: linear-gradient(180deg, #ffa030, #ff5500);
+    box-shadow: 0 0 22px rgba(255,94,0,0.9);
+  }
+  button.reset { background:#5a2a10; color:#ffb347; border:none; padding:6px 12px; }
+  button.clear {
+    background: linear-gradient(180deg, #b32a00, #7a1a00);
+    color:#fff; border:none; padding:10px 20px; font-size:15px; font-weight:bold;
+    box-shadow: 0 0 12px rgba(180,40,0,0.6);
+  }
+  button.clear:hover {
+    background: linear-gradient(180deg, #d43a00, #9a2200);
+    box-shadow: 0 0 18px rgba(255,60,0,0.8);
+  }
+  button.small { padding:3px 8px; font-size:12px; margin:0; }
+  button.warnbtn { background:#b32a00; color:#fff; border:none; padding:6px 12px; }
+  button.plus {
+    padding:2px 10px; font-size:16px; font-weight:bold; line-height:1;
+    background: linear-gradient(180deg, #ff8c00, #ff4500);
+    color:#fff; border:none; border-radius:3px; margin:0;
+    box-shadow: 0 0 8px rgba(255,94,0,0.5);
+  }
+  button.plus:hover {
+    background: linear-gradient(180deg, #ffa030, #ff5500);
+    box-shadow: 0 0 14px rgba(255,94,0,0.9);
+  }
+  button.ghost { background:#3d1a08; color:#ffb347; border:1px solid #7a3a10; }
+  button.ghost:hover { background:#5a2a10; }
+
+  .view-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 5000;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    background: linear-gradient(180deg, #3d1a08, #2a1408);
+    color: #ffb347;
+    border: 1px solid #ff8c00;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(255,94,0,0.6);
+    margin: 0;
+  }
+  .view-toggle:hover {
+    background: linear-gradient(180deg, #ff8c00, #ff4500);
+    color: #fff;
+  }
+
+  .panel {
+    background:#2a1408; border:1px solid #5a2a10; padding:12px; max-width:1100px;
+    margin-top:16px; font-size:14px; box-shadow: 0 0 15px rgba(255,80,0,0.15);
+  }
+  .panel h2 { margin:0 0 10px 0; }
+  .panel .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:8px; }
+  .panel select {
+    padding:6px; font-size:14px; min-width:280px;
+    background:#1a0d06; color:#ffe8d0; border:1px solid #5a2a10; border-radius:3px;
+  }
+  .panel select:focus { outline:none; border-color:#ff5e00; }
+  .panel input { width:100px; }
+
+  .templates { border-collapse:collapse; width:100%; margin-top:8px; }
+  .templates th, .templates td { font-size:13px; padding:4px 6px; }
+
+  .settings {
+    background:#2a1408; border:1px solid #5a2a10; padding:12px; max-width:1100px;
+    margin-top:16px; font-size:14px; display:flex; gap:20px; flex-wrap:wrap; align-items:center;
+  }
+  .settings label { display:flex; align-items:center; gap:6px; }
+  .settings input { width:100px; }
+
+  .phase-controls {
+    display:flex; align-items:center; gap:8px;
+    padding:6px 10px; background:#3d1a08; border-radius:4px;
+    border:1px solid #5a2a10;
+  }
+  .phase-controls .cnt {
+    font-size:18px; font-weight:bold; color:#ff8c00;
+    min-width:32px; text-align:center;
+    text-shadow: 0 0 8px rgba(255,94,0,0.5);
+  }
+  .phase-controls button {
+    margin:0; padding:4px 12px; font-size:16px; font-weight:bold;
+    background: linear-gradient(180deg, #ff8c00, #ff4500); color:#fff; border:none;
+  }
+  .phase-controls button:hover {
+    background: linear-gradient(180deg, #ffa030, #ff5500);
+    box-shadow: 0 0 12px rgba(255,94,0,0.8);
+  }
+
+  .result { max-width:1100px; margin-top:20px; }
+
+  .group-result {
+    background: linear-gradient(180deg, #3d1a08, #2a1408);
+    border: 2px solid #ff8c00;
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    box-shadow: 0 0 20px rgba(255,94,0,0.35);
+  }
+  .group-result.over { border-color:#ff2200; box-shadow: 0 0 25px rgba(255,40,0,0.7); }
+  .group-result .head {
+    display:flex; justify-content:space-between; align-items:flex-start;
+    flex-wrap:wrap; gap:12px; margin-bottom:10px;
+    padding-bottom:10px; border-bottom:1px solid #5a2a10;
+  }
+  .group-result .title {
+    font-size:16px; font-weight:bold; color:#ffb347;
+    text-shadow: 0 0 8px rgba(255,94,0,0.5);
+  }
+  .group-result .stats { font-size:13px; color:#cc8a5a; line-height:1.6; }
+  .group-result .stats b { color:#ff8c00; }
+
+  .phase {
+    background:#1a0d06; border:1px solid #5a2a10; padding:10px; margin-top:8px;
+    border-radius:4px;
+  }
+  .phase.over { border:2px solid #ff4500; background:#3d1005; }
+  .phase h4 { margin:0 0 6px 0; font-size:14px; color:#ffb347; }
+  .phase .power { font-weight:bold; color:#ff8c00; }
+  .phase .current { color:#cc8a5a; font-size:12px; }
+  .phase table { margin-top:6px; background:#0d0603; }
+  .phase table th, .phase table td { font-size:12px; padding:3px 5px; }
+  .phase select {
+    padding:1px 4px; font-size:12px;
+    background:#2a1408; color:#ffe8d0; border:1px solid #5a2a10; border-radius:2px;
+  }
+
+  .summary {
+    background:#2a1408; border:1px solid #5a2a10; padding:12px; font-size:15px;
+    box-shadow: 0 0 12px rgba(255,80,0,0.15); margin-bottom:16px;
+  }
+  .summary b { font-size:16px; color:#ff8c00; }
+  .warn { color:#ff6b6b; font-weight:bold; text-shadow: 0 0 8px rgba(255,40,0,0.6); }
+  .ok { color:#7ee07e; font-weight:bold; }
+  .muted { color:#cc8a5a; }
+
+  .breaker-mini-grid {
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap:8px; margin-top:8px;
+  }
+  .breaker-mini {
+    background:#1a0d06; border:1px solid #5a2a10; border-radius:4px;
+    padding:6px 10px; font-size:12px;
+  }
+  .breaker-mini .lbl { color:#cc8a5a; font-size:11px; }
+  .breaker-mini .val { color:#ff8c00; font-weight:bold; font-size:14px; }
+
+  .breaker {
+    background: linear-gradient(180deg, #3d1a08, #2a1408);
+    border: 2px solid #ff8c00;
+    border-radius: 6px;
+    padding: 14px 18px;
+    max-width: 1100px;
+    margin-top: 16px;
+    box-shadow: 0 0 25px rgba(255,94,0,0.4);
+  }
+  .breaker h3 {
+    margin: 0 0 10px 0;
+    font-size: 17px;
+    color: #ffb347;
+    text-shadow: 0 0 10px rgba(255,94,0,0.5);
+  }
+  .breaker .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .breaker .card {
+    background: #1a0d06;
+    border: 1px solid #5a2a10;
+    border-radius: 5px;
+    padding: 10px 14px;
+  }
+  .breaker .card .label {
+    font-size: 12px;
+    color: #cc8a5a;
+    margin-bottom: 4px;
+  }
+  .breaker .card .value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff8c00;
+    text-shadow: 0 0 8px rgba(255,94,0,0.5);
+  }
+  .breaker .card .sub {
+    font-size: 11px;
+    color: #a06a48;
+    margin-top: 2px;
+  }
+  .breaker .explain {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #5a2a10;
+    font-size: 12px;
+    color: #cc8a5a;
+    line-height: 1.5;
+  }
+
+  /* ============ КЛИКАБЕЛЬНЫЙ LIGHT PLOT ============ */
+  .plot-wrap {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    background: #fff;
+    border: 2px solid #5a2a10;
+    box-shadow: 0 0 25px rgba(255,94,0,0.3);
+    margin-top: 10px;
+  }
+  .plot-wrap img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .plot-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    cursor: crosshair;
+  }
+  .plot-marker {
+    position: absolute;
+    width: 22px; height: 22px;
+    margin-left: -11px; margin-top: -11px;
+    border-radius: 50%;
+    background: rgba(255,94,0,0.85);
+    border: 2px solid #fff;
+    box-shadow: 0 0 8px rgba(255,60,0,0.9);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #fff; font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s;
+    pointer-events: auto;
+  }
+  .plot-marker:hover {
+    transform: scale(1.3);
+    z-index: 10;
+  }
+  .plot-marker .tip {
+    display: none;
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    background: #1a0d06;
+    color: #ffe8d0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    border: 1px solid #ff8c00;
+    box-shadow: 0 0 10px rgba(255,94,0,0.6);
+    z-index: 20;
+  }
+  .plot-marker:hover .tip { display: block; }
+
+  .plot-toolbar {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    margin-top: 10px; max-width: 1100px;
+  }
+  .plot-toolbar label { font-size: 13px; color: #cc8a5a; }
+  .plot-toolbar input[type="number"] { width: 60px; }
+  .plot-toolbar input[type="file"] {
+    background: #2a1408; color: #ffe8d0; border: 1px solid #5a2a10;
+    padding: 6px; border-radius: 3px; font-size: 13px;
+  }
+
+  /* ============ БАННЕР ============ */
+  .confirm-banner {
+    display: none;
+    background: linear-gradient(180deg, #3d1005, #2a0a02);
+    border: 2px solid #ff4500;
+    border-radius: 5px;
+    padding: 12px 16px;
+    max-width: 1100px;
+    margin-top: 12px;
+    box-shadow: 0 0 20px rgba(255,60,0,0.5);
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .confirm-banner.show { display: flex; }
+  .confirm-banner .msg { flex: 1; color: #ffd9a0; font-size: 14px; }
+  .confirm-banner button { margin: 0; padding: 8px 16px; font-weight: bold; font-size: 14px; }
+  .confirm-banner button.yes {
+    background: linear-gradient(180deg, #b32a00, #7a1a00); color: #fff; border: none;
+  }
+  .confirm-banner button.yes:hover {
+    background: linear-gradient(180deg, #d43a00, #9a2200);
+    box-shadow: 0 0 14px rgba(255,60,0,0.8);
+  }
+  .confirm-banner button.no { background: #3d1a08; color: #ffb347; border: 1px solid #7a3a10; }
+  .confirm-banner button.no:hover { background: #5a2a10; color: #ffd9a0; }
+
+  .hint { font-size:12px; color:#a06a48; max-width:1100px; margin-top:8px; line-height:1.5; }
+  .collapsible { cursor:pointer; user-select:none; }
+  .collapsible:hover { color:#ff8c00; }
+
+  /* ============ БЛОК ПОЯСНЕНИЙ (сворачиваемый) ============ */
+  .explain-box {
+    background: linear-gradient(180deg, #3d1a08, #2a1408);
+    border: 2px solid #7a3a10;
+    border-radius: 6px;
+    padding: 0;
+    max-width: 1100px;
+    margin-top: 20px;
+    box-shadow: 0 0 20px rgba(255,94,0,0.25);
+    overflow: hidden;
+  }
+  .explain-box .explain-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .explain-box .explain-head:hover {
+    background: rgba(255,94,0,0.08);
+  }
+  .explain-box .explain-head h3 {
+    margin: 0;
+    font-size: 17px;
+    color: #ffb347;
+    text-shadow: 0 0 10px rgba(255,94,0,0.5);
+  }
+  .explain-box .explain-head .explain-toggle-icon {
+    font-size: 14px;
+    color: #ff8c00;
+    font-weight: normal;
+  }
+  .explain-box .explain-body {
+    display: none;
+    padding: 0 18px 14px 18px;
+    border-top: 1px solid #5a2a10;
+  }
+  .explain-box.expanded .explain-body {
+    display: block;
+  }
+  .explain-box .item {
+    padding: 10px 0;
+    border-bottom: 1px solid #5a2a10;
+    font-size: 13px;
+    color: #ffe8d0;
+    line-height: 1.55;
+  }
+  .explain-box .item:last-child { border-bottom: none; }
+  .explain-box .item .title {
+    font-weight: bold;
+    color: #ff8c00;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .explain-box .item .desc { color: #cc8a5a; }
+  .explain-box .item .example {
+    margin-top: 6px;
+    padding: 8px 12px;
+    background: #1a0d06;
+    border-left: 3px solid #ff8c00;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #ffb347;
+  }
+  .explain-box .item .example b { color: #ff8c00; }
+  .explain-box .item ul {
+    margin: 6px 0 0 0;
+    padding-left: 20px;
+    color: #cc8a5a;
+  }
+  .explain-box .item ul li { margin: 3px 0; }
+  .explain-box .item ul li b { color: #ff8c00; }
+
+  .field-hint {
+    display: block;
+    font-size: 11px;
+    color: #a06a48;
+    margin-top: 2px;
+  }
+  .settings .field-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .settings .field-wrap .top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ============ ВСПЛЫВАЮЩЕЕ ФОТО С ОБЛАЧКОМ ============ */
+  .photo-popup {
+    display: none;
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%) translateX(40px);
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+    max-width: 340px;
+  }
+  .photo-popup.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+    pointer-events: auto;
+  }
+
+  .photo-popup-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .photo-bubble {
+    position: relative;
+    background: linear-gradient(180deg, #fff5e0, #ffe8d0);
+    color: #2a1408;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.35;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4), 0 0 25px rgba(255,140,0,0.5);
+    border: 2px solid #ff8c00;
+    max-width: 190px;
+    margin-top: 20px;
+    animation: bubblePop 0.4s cubic-bezier(0.2, 1.5, 0.5, 1);
+  }
+  .photo-bubble::after {
+    content: '';
+    position: absolute;
+    right: -12px;
+    top: 26px;
+    width: 0; height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid #ff8c00;
+  }
+  .photo-bubble::before {
+    content: '';
+    position: absolute;
+    right: -9px;
+    top: 26px;
+    width: 0; height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid #fff5e0;
+    z-index: 1;
+  }
+
+  @keyframes bubblePop {
+    0%   { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+
+  .photo-popup img {
+    display: block;
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #ff8c00;
+    box-shadow: 0 0 30px rgba(255,94,0,0.8), 0 0 60px rgba(255,60,0,0.4);
+    animation: photoPop 0.4s cubic-bezier(0.2, 1.5, 0.5, 1);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .photo-popup img:hover { transform: scale(1.05); }
+
+  @keyframes photoPop {
+    0%   { transform: scale(0.4) rotate(-15deg); opacity: 0; }
+    100% { transform: scale(1)   rotate(0deg);  opacity: 1; }
+  }
+
+  .photo-popup .photo-close {
+    position: absolute;
+    top: 0;
+    right: 160px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #b32a00;
+    color: #fff;
+    border: 2px solid #fff;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    margin: 0;
+    box-shadow: 0 0 12px rgba(255,60,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .photo-popup .photo-close:hover {
+    background: #ff4500;
+    transform: scale(1.1);
+  }
+
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-track { background:#1a0d06; }
+  ::-webkit-scrollbar-thumb { background:#5a2a10; border-radius:5px; }
+  ::-webkit-scrollbar-thumb:hover { background:#ff5e00; }
+
+  /* ============ МОБИЛЬНАЯ ВЕРСИЯ ============ */
+  body.mobile {
+    margin: 8px;
+    font-size: 14px;
+    padding-top: 50px;
+  }
+  body.mobile h1 { font-size: 18px; }
+  body.mobile h2 { font-size: 14px; margin-top: 14px; }
+
+  body.mobile .panel,
+  body.mobile .settings,
+  body.mobile .summary,
+  body.mobile .breaker,
+  body.mobile .group-result,
+  body.mobile .confirm-banner,
+  body.mobile .explain-box {
+    max-width: 100%;
+    margin-top: 10px;
+  }
+  body.mobile .panel,
+  body.mobile .settings,
+  body.mobile .summary,
+  body.mobile .breaker,
+  body.mobile .group-result,
+  body.mobile .confirm-banner {
+    padding: 10px;
+  }
+  body.mobile .explain-box .explain-head { padding: 12px 14px; }
+  body.mobile .explain-box .explain-body { padding: 0 14px 12px 14px; }
+
+  body.mobile table { max-width: 100%; }
+  body.mobile th, body.mobile td {
+    font-size: 12px;
+    padding: 4px 5px;
+  }
+
+  body.mobile input[type="text"],
+  body.mobile input[type="number"] {
+    padding: 8px;
+    font-size: 16px;
+  }
+  body.mobile button {
+    padding: 10px 14px;
+    font-size: 15px;
+    margin-top: 6px;
+  }
+  body.mobile button.small {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  body.mobile button.plus {
+    padding: 4px 14px;
+    font-size: 18px;
+  }
+
+  body.mobile .settings {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  body.mobile .settings label,
+  body.mobile .settings .field-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    font-size: 14px;
+  }
+  body.mobile .settings input { width: 100%; }
+
+  body.mobile .panel .row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  body.mobile .panel select {
+    min-width: 100%;
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+  }
+  body.mobile .panel input { width: 100%; }
+
+  body.mobile .actions-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  body.mobile .actions-row button {
+    width: 100%;
+    margin-top: 0;
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  body.mobile .plot-toolbar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  body.mobile .plot-toolbar label {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+  body.mobile .plot-toolbar input[type="file"] {
+    padding: 8px;
+    font-size: 14px;
+  }
+  body.mobile .plot-toolbar select { width: 100%; }
+  body.mobile .plot-toolbar button { width: 100%; }
+
+  body.mobile .group-result .head {
+    flex-direction: column;
+    gap: 8px;
+  }
+  body.mobile .breaker-mini-grid { min-width: 0 !important; }
+
+  body.mobile .breaker .grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.mobile .phase select {
+    padding: 6px 8px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  body.mobile .confirm-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  body.mobile .confirm-banner button {
+    width: 100%;
+  }
+
+  body.mobile .view-toggle {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  body.mobile #__toast {
+    left: 8px !important;
+    right: 8px !important;
+    transform: none !important;
+    max-width: none !important;
+    text-align: center;
+  }
+
+  body.mobile .photo-popup {
+    right: 8px;
+    left: 8px;
+    top: auto;
+    bottom: 20px;
+    transform: translateY(40px);
+    max-width: none;
+  }
+  body.mobile .photo-popup.show {
+    transform: translateY(0);
+  }
+  body.mobile .photo-popup-inner {
+    justify-content: center;
+  }
+  body.mobile .photo-popup img {
+    width: 90px;
+    height: 90px;
+  }
+  body.mobile .photo-bubble {
+    font-size: 13px;
+    padding: 10px 12px;
+    max-width: 170px;
+  }
+  body.mobile .photo-popup .photo-close {
+    right: 110px;
+  }
+</style>
+</head>
+<body>
+
+<button class="view-toggle" id="viewToggle" onclick="toggleMobile()">🖥 Версия для ПК</button>
+
+<h1>🔥 Распределение приборов по фазам</h1>
+
+<!-- ============ КЛИКАБЕЛЬНЫЙ LIGHT PLOT ============ -->
+<div class="panel">
+  <h2 class="collapsible" onclick="togglePlot()">
+    🗺 Light plot — кликайте по приборам на картинке <span id="plotToggle" style="font-weight:normal;font-size:13px;color:#ff8c00;">[свернуть]</span>
+  </h2>
+
+  <div id="plotBody">
+    <div class="plot-toolbar">
+      <label>Загрузить план:
+        <input type="file" id="plotFile" accept="image/*">
+      </label>
+      <label>Прибор для добавления:
+        <select id="plotDeviceSelect" style="min-width:220px;padding:6px;background:#1a0d06;color:#ffe8d0;border:1px solid #5a2a10;border-radius:3px;"></select>
+      </label>
+      <button class="ghost small" onclick="clearPlot()">🗑 Очистить разметку</button>
+      <button class="ghost small" onclick="exportCSV()">📄 Экспорт в CSV</button>
+      <span style="color:#cc8a5a;font-size:12px;">Отмечено: <b id="plotCount" style="color:#ff8c00;">0</b></span>
+    </div>
+
+    <div class="plot-wrap" id="plotWrap" style="display:none;">
+      <img id="plotImg" alt="light plot" src="">
+      <div class="plot-overlay" id="plotOverlay"></div>
+    </div>
+
+    <div id="plotPlaceholder" style="padding:30px;text-align:center;color:#a06a48;border:2px dashed #5a2a10;margin-top:10px;">
+      Загрузите картинку light plot'а выше ↑<br>
+      <span style="font-size:12px;">(JPG/PNG — скриншот из Vectorworks/WYSIWYG/Capture или фото чертежа)</span>
+    </div>
+
+    <div class="hint">
+      <b>Как пользоваться:</b>
+      1) загрузите картинку плана,
+      2) выберите прибор из списка,
+      3) кликайте по точкам на плане — приборы добавляются в таблицу расчёта.
+      Правый клик по метке — удалить. Наведение на метку — видно название прибора.
+      Разметка сохраняется в браузере.
+    </div>
+  </div>
+</div>
+
+<!-- ============ ПАНЕЛЬ СПИСКА ШАБЛОНОВ ============ -->
+<div class="panel">
+  <h2 class="collapsible" onclick="toggleTemplates()">
+    📋 Список приборов (шаблоны) <span id="tplToggle" style="font-weight:normal;font-size:13px;color:#ff8c00;">[свернуть]</span>
+  </h2>
+
+  <div id="tplBody">
+    <div class="row">
+      <label>Выбрать прибор:
+        <select id="tplSelect">
+          <option value="">— выберите прибор —</option>
+        </select>
+      </label>
+      <label>Кол-во: <input type="number" id="tplQty" value="1" min="1" step="1"></label>
+      <button class="calc" style="margin-top:0;" onclick="addFromTemplate()">+ Добавить в расчёт</button>
+    </div>
+
+    <h2 style="font-size:14px; margin-top:16px;">Список приборов — клик по «+» добавляет прибор в расчёт</h2>
+    <table class="templates" id="tplTable">
+      <thead>
+        <tr>
+          <th style="width:50%">Название</th>
+          <th style="width:20%">Мощность, Вт</th>
+          <th style="width:15%">Добавить</th>
+          <th style="width:15%"></th>
+        </tr>
+      </thead>
+      <tbody id="tplRows"></tbody>
+    </table>
+    <button class="small" onclick="addTemplate()" style="margin-top:8px;">+ Добавить прибор в список</button>
+    <button class="small warnbtn" onclick="askResetTemplates()" style="margin-top:8px;">Сбросить список к стандартному</button>
+  </div>
+</div>
+
+<!-- ============ ТАБЛИЦА РАСЧЁТА ============ -->
+<h2>Приборы в расчёте</h2>
+<table id="tbl">
+  <thead>
+    <tr>
+      <th style="width:40%">Название прибора</th>
+      <th style="width:20%">Мощность, Вт</th>
+      <th style="width:20%">Количество, шт</th>
+      <th style="width:20%"></th>
+    </tr>
+  </thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<div class="actions-row">
+  <button onclick="addRow()">+ Добавить строку вручную</button>
+  <button class="calc" onclick="calculate(true)">🔥 Рассчитать распределение</button>
+  <button class="reset" onclick="calculate(false)">Сбросить ручные правки</button>
+  <button class="clear" onclick="askClearAll()">🗑 Очистить расчёт</button>
+</div>
+
+<!-- Баннер подтверждения -->
+<div id="clearConfirm" class="confirm-banner">
+  <div class="msg">🗑 Очистить все приборы из таблицы расчёта?<br>
+    <span style="color:#cc8a5a; font-size:12px;">Список шаблонов и разметка на плане останутся.</span>
+  </div>
+  <button class="yes" onclick="doClearAll()">Да, очистить</button>
+  <button class="no" onclick="cancelClear()">Отмена</button>
+</div>
+
+<!-- ============ НАСТРОЙКИ ============ -->
+<div class="settings">
+  <div class="phase-controls">
+    <span style="color:#cc8a5a;">Кол-во фаз:</span>
+    <button onclick="changePhases(-1)" title="Убрать фазу">−</button>
+    <span class="cnt" id="phaseCount">3</span>
+    <button onclick="changePhases(1)" title="Добавить фазу">+</button>
+  </div>
+  <span class="muted" style="font-size:12px;">
+    = <b id="groupsLbl" style="color:#ff8c00;">1</b> группа(ы) по 3 фазы
+    <span id="extraPhasesLbl"></span>
+  </span>
+
+  <div class="field-wrap">
+    <div class="top">
+      <span>Напряжение, В:</span>
+      <input type="number" id="voltage" value="230" min="1" step="1">
+    </div>
+    <span class="field-hint">Фазное (230) или линейное (380/400)</span>
+  </div>
+
+  <div class="field-wrap">
+    <div class="top">
+      <span>Макс. ток на фазу, А:</span>
+      <input type="number" id="maxCurrent" value="16" min="1" step="1">
+    </div>
+    <span class="field-hint">Номинал автомата или разъёма</span>
+  </div>
+
+  <div class="field-wrap">
+    <div class="top">
+      <span>cos φ:</span>
+      <input type="number" id="cosPhi" value="1" min="0.1" max="1" step="0.05" style="width:80px;">
+    </div>
+    <span class="field-hint">Коэффициент мощности</span>
+  </div>
+
+  <div class="field-wrap">
+    <div class="top">
+      <span>Одновременность:</span>
+      <input type="number" id="simul" value="1" min="0.1" max="1" step="0.05" style="width:80px;">
+    </div>
+    <span class="field-hint">Доля одновременно работающих приборов</span>
+  </div>
+</div>
+
+<div id="result" class="result"></div>
+
+<!-- ============ БЛОК ПОЯСНЕНИЙ (сворачиваемый) ============ -->
+<div class="explain-box" id="explainBox">
+  <div class="explain-head" onclick="toggleExplain()">
+    <h3>📖 Пояснения к расчёту</h3>
+    <span class="explain-toggle-icon" id="explainToggleIcon">[показать]</span>
+  </div>
+  <div class="explain-body">
+
+    <div class="item">
+      <div class="title">cos φ (коэффициент мощности)</div>
+      <div class="desc">
+        Показывает, насколько эффективно прибор использует электроэнергию. Часть мощности уходит
+        в «реактивную» составляющую и не выполняет полезную работу, но всё равно нагружает провода.
+        Чем ниже cos φ — тем больше ток при той же мощности.
+      </div>
+      <ul>
+        <li>Лампы накаливания, галоген → <b>cos φ = 1.0</b> (чисто активная нагрузка)</li>
+        <li>LED-приборы с качественным блоком питания (PFC) → <b>0.9–0.95</b></li>
+        <li>Дешёвые LED, строб, блиндер с импульсными БП без PFC → <b>0.5–0.7</b></li>
+        <li>Если не знаете точно — ставьте <b>1.0</b> для расчёта «по минимуму», но с запасом по раздаче</li>
+      </ul>
+      <div class="example">
+        <b>Пример:</b> прибор 1000 Вт при cos φ = 1.0 даёт ток <b>4.3 А</b>, а при cos φ = 0.6 — уже <b>7.2 А</b>
+        при том же напряжении. Ток больше → нужен толще кабель и автомат мощнее.
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="title">Одновременность</div>
+      <div class="desc">
+        Доля приборов, которые реально включены одновременно. В световом оборудовании
+        редко бывает так, что ВСЕ приборы горят на полной мощности в один момент.
+        Часть мигает, часть в паузе, часть работает на пониженной яркости.
+      </div>
+      <ul>
+        <li><b>1.0</b> — все приборы включены одновременно (максимальный расчёт, «по-максимуму»)</li>
+        <li><b>0.8</b> — типичная оценка для шоу, где идёт динамика</li>
+        <li><b>0.7</b> — если уверены, что часть приборов работает в паузах</li>
+      </ul>
+      <div class="example">
+        <b>Пример:</b> 10 приборов по 1000 Вт, одновременность 0.8 → расчёт идёт по <b>8000 Вт</b>,
+        а не по 10000 Вт. Это даёт экономию по автомату и кабелю. Но если ошиблись — автомат может выбить.
+        <b>Для ответственных мероприятий всегда ставьте 1.0 или 0.9.</b>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="title">Максимальный ток на фазу</div>
+      <div class="desc">
+        Это предельный ток, который выдерживает <b>автомат</b> или <b>разъём (CEE)</b> на каждой фазе.
+        Калькулятор проверяет: не превышает ли ток фазы этот лимит, и если превышает — подсвечивает красным.
+      </div>
+      <ul>
+        <li>Автомат C16 / разъём CEE 16A → <b>16 А</b> (≈ 3.7 кВт при 230 В)</li>
+        <li>Автомат C32 / разъём CEE 32A → <b>32 А</b> (≈ 7.4 кВт при 230 В)</li>
+        <li>Автомат C63 / разъём CEE 63A → <b>63 А</b> (≈ 14.5 кВт при 230 В)</li>
+        <li>CEE 125A → <b>125 А</b> (≈ 28.7 кВт при 230 В)</li>
+      </ul>
+      <div class="example">
+        <b>Пример:</b> на фазе 5 кВт приборов, cos φ = 1.0, напряжение 230 В →
+        ток = 5000 / 230 = <b>21.7 А</b>. Это значит, что CEE 16A <b>не подойдёт</b> —
+        нужен минимум 32A, а лучше 32A с запасом.
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="title">Как это всё работает вместе</div>
+      <div class="desc">
+        Формула расчёта тока на фазу:
+      </div>
+      <div class="example">
+        <b>I = (P_фазы × Одновременность) / (U_фазное × cos φ)</b>
+        <br><br>
+        Например: P_фазы = 5000 Вт, одновременность = 0.9, U = 230 В, cos φ = 0.9.
+        <br>
+        I = (5000 × 0.9) / (230 × 0.9) = 4500 / 207 = <b>21.7 А</b>.
+        <br>
+        Автомат: 25 А (с запасом 15%). Разъём CEE: 32 А. Кабель: 4 мм².
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="title">💡 Простой совет</div>
+      <div class="desc">
+        Если не хотите глубоко разбираться — действуйте так:
+      </div>
+      <ul>
+        <li><b>cos φ</b> — ставьте <b>1.0</b>, если приборы в основном лампы накаливания / галоген; <b>0.9</b> для нормальных LED; <b>0.7</b> для дешёвых LED/стробов без PFC.</li>
+        <li><b>Одновременность</b> — для ответственной работы <b>1.0</b>. Если знаете, что шоу динамичное — <b>0.9</b>.</li>
+        <li><b>Макс. ток на фазу</b> — ставьте по <b>номиналу автомата или разъёма</b>, который собираетесь использовать (16, 32, 63, 125 А).</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ ВСПЛЫВАЮЩЕЕ ФОТО С ОБЛАЧКОМ ============ -->
+<div class="photo-popup" id="photoPopup">
+  <button class="photo-close" onclick="hidePhotoPopup()" title="Закрыть">✕</button>
+  <div class="photo-popup-inner">
+    <div class="photo-bubble">Я вам электричество дал!?</div>
+    <img id="photoPopupImg" src="" alt="Фото" onclick="hidePhotoPopup()">
+  </div>
+</div>
+
+<script>
+/* ==================== БАЗОВЫЙ СПИСОК ==================== */
+const DEFAULT_TEMPLATES = [
+  { name: 'Мини би',          power: 350 },
+  { name: 'Тх',                power: 400 },
+  { name: '19х40',             power: 800 },
+  { name: 'Строб поворотный', power: 1500 },
+  { name: 'Лед бар',          power: 800 },
+  { name: 'Бим',               power: 400 },
+  { name: 'Лед блиндер',      power: 400 },
+  { name: 'Блиндер',           power: 2600 },
+  { name: 'Скоп',              power: 900 },
+  { name: 'Скоп мах',          power: 1500 },
+  { name: '4700 вош',          power: 200 },
+  { name: 'Атомик строб',     power: 6200 }
+];
+
+const STORAGE_KEY   = 'phase_calc_v3';
+const SETTINGS_KEY  = 'phase_calc_settings_v11';
+const TEMPLATES_KEY = 'phase_templates_v5';
+const PLOT_KEY      = 'phase_plot_v1';
+const PLOT_IMG_KEY  = 'phase_plot_image_v1';
+
+let templates = [];
+let totalPhases = 3;
+
+/* ==================== LIGHT PLOT ==================== */
+let plotMarkers = [];
+let currentPlotImage = null;
+
+function togglePlot() {
+  const body = document.getElementById('plotBody');
+  const label = document.getElementById('plotToggle');
+  if (body.style.display === 'none') {
+    body.style.display = '';
+    label.textContent = '[свернуть]';
+  } else {
+    body.style.display = 'none';
+    label.textContent = '[развернуть]';
+  }
+}
+
+document.getElementById('plotFile').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    currentPlotImage = ev.target.result;
+    showPlotImage(currentPlotImage);
+    try { localStorage.setItem(PLOT_IMG_KEY, currentPlotImage); } catch(e){}
+  };
+  reader.readAsDataURL(file);
+});
+
+function showPlotImage(src) {
+  document.getElementById('plotImg').src = src;
+  document.getElementById('plotWrap').style.display = 'inline-block';
+  document.getElementById('plotPlaceholder').style.display = 'none';
+  redrawMarkers();
+}
+
+function clearPlot() {
+  if (plotMarkers.length === 0) {
+    showToast('Разметка уже пуста.');
+    return;
+  }
+  if (!confirm('Удалить все метки с плана? Приборы в таблице расчёта останутся.')) return;
+  plotMarkers = [];
+  savePlot();
+  redrawMarkers();
+  showToast('Разметка очищена.');
+}
+
+document.getElementById('plotOverlay').addEventListener('click', function(e) {
+  const sel = document.getElementById('plotDeviceSelect');
+  const idx = sel.value;
+  if (idx === '') {
+    showToast('Сначала выберите прибор в списке сверху.');
+    return;
+  }
+  const tpl = templates[parseInt(idx, 10)];
+  if (!tpl) return;
+
+  const rect = e.currentTarget.getBoundingClientRect();
+  const x = ((e.clientX - rect.left) / rect.width) * 100;
+  const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+  plotMarkers.push({ x: x, y: y, name: tpl.name, power: tpl.power });
+  savePlot();
+  redrawMarkers();
+  addOneToTable(tpl.name, tpl.power);
+});
+
+function redrawMarkers() {
+  const overlay = document.getElementById('plotOverlay');
+  overlay.innerHTML = '';
+  plotMarkers.forEach((m, i) => {
+    const el = document.createElement('div');
+    el.className = 'plot-marker';
+    el.style.left = m.x + '%';
+    el.style.top  = m.y + '%';
+    el.innerHTML = `<span class="tip">${escapeHtml(m.name)} — ${m.power} Вт</span>`;
+
+    el.addEventListener('contextmenu', (ev) => {
+      ev.preventDefault();
+      plotMarkers.splice(i, 1);
+      savePlot();
+      redrawMarkers();
+      showToast('Метка удалена. (Прибор в таблице — вручную)');
+    });
+    overlay.appendChild(el);
+  });
+  document.getElementById('plotCount').textContent = plotMarkers.length;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function savePlot() {
+  try { localStorage.setItem(PLOT_KEY, JSON.stringify(plotMarkers)); } catch(e){}
+}
+function loadPlot() {
+  try {
+    const raw = localStorage.getItem(PLOT_KEY);
+    if (raw) plotMarkers = JSON.parse(raw) || [];
+  } catch(e) { plotMarkers = []; }
+
+  try {
+    const img = localStorage.getItem(PLOT_IMG_KEY);
+    if (img) {
+      currentPlotImage = img;
+      showPlotImage(img);
+    }
+  } catch(e){}
+  redrawMarkers();
+}
+
+function exportCSV() {
+  const rows = [];
+  rows.push(['Название', 'Мощность, Вт', 'X, %', 'Y, %']);
+  plotMarkers.forEach(m => {
+    rows.push([m.name, m.power, m.x.toFixed(2), m.y.toFixed(2)]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'light_plot_разметка.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ==================== ЗАГРУЗКА ШАБЛОНОВ ==================== */
+function loadTemplates() {
+  templates = [];
+  try {
+    const raw = localStorage.getItem(TEMPLATES_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        templates = parsed
+          .filter(t => t && typeof t === 'object')
+          .map(t => ({ name: String(t.name || ''), power: Number(t.power) || 0 }))
+          .filter(t => t.name !== '' || t.power > 0);
+      }
+    }
+  } catch (e) { templates = []; }
+  if (templates.length === 0) templates = DEFAULT_TEMPLATES.map(t => ({ ...t }));
+  renderTemplates();
+  renderTplSelect();
+  renderPlotDeviceSelect();
+}
+function saveTemplates() {
+  try { localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates)); } catch(e){}
+}
+function renderTemplates() {
+  const tbody = document.getElementById('tplRows');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  templates.forEach((t, i) => {
+    const tr = document.createElement('tr');
+
+    const tdName = document.createElement('td');
+    const inpName = document.createElement('input');
+    inpName.type = 'text'; inpName.value = t.name;
+    inpName.addEventListener('input', () => updateTpl(i, 'name', inpName.value));
+    tdName.appendChild(inpName);
+
+    const tdPower = document.createElement('td');
+    const inpPower = document.createElement('input');
+    inpPower.type = 'number'; inpPower.min = '0'; inpPower.step = '1';
+    inpPower.value = t.power;
+    inpPower.addEventListener('input', () => updateTpl(i, 'power', inpPower.value));
+    tdPower.appendChild(inpPower);
+
+    const tdPlus = document.createElement('td');
+    tdPlus.style.textAlign = 'center';
+    const btnPlus = document.createElement('button');
+    btnPlus.className = 'plus'; btnPlus.textContent = '+';
+    btnPlus.addEventListener('click', () => addOneFromTemplate(i));
+    tdPlus.appendChild(btnPlus);
+
+    const tdDel = document.createElement('td');
+    const btnDel = document.createElement('button');
+    btnDel.className = 'del'; btnDel.textContent = '✕';
+    btnDel.addEventListener('click', () => deleteTpl(i));
+    tdDel.appendChild(btnDel);
+
+    tr.appendChild(tdName); tr.appendChild(tdPower);
+    tr.appendChild(tdPlus); tr.appendChild(tdDel);
+    tbody.appendChild(tr);
+  });
+}
+function renderTplSelect() {
+  const sel = document.getElementById('tplSelect');
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '';
+  const ph = document.createElement('option');
+  ph.value = ''; ph.textContent = templates.length ? '— выберите прибор —' : '— список пуст —';
+  sel.appendChild(ph);
+  templates.forEach((t, i) => {
+    const opt = document.createElement('option');
+    opt.value = String(i); opt.textContent = `${t.name} — ${t.power} Вт`;
+    sel.appendChild(opt);
+  });
+  if (prev && sel.querySelector(`option[value="${prev}"]`)) sel.value = prev;
+}
+function renderPlotDeviceSelect() {
+  const sel = document.getElementById('plotDeviceSelect');
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '';
+  const ph = document.createElement('option');
+  ph.value = ''; ph.textContent = '— выберите прибор для кликов —';
+  sel.appendChild(ph);
+  templates.forEach((t, i) => {
+    const opt = document.createElement('option');
+    opt.value = String(i); opt.textContent = `${t.name} — ${t.power} Вт`;
+    sel.appendChild(opt);
+  });
+  if (prev && sel.querySelector(`option[value="${prev}"]`)) sel.value = prev;
+}
+function updateTpl(i, field, value) {
+  if (!templates[i]) return;
+  if (field === 'power') value = parseFloat(value) || 0;
+  templates[i][field] = value;
+  saveTemplates();
+  ['tplSelect','plotDeviceSelect'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const cur = sel.value;
+    const opt = sel.querySelector(`option[value="${i}"]`);
+    if (opt) {
+      const t = templates[i];
+      opt.textContent = `${t.name} — ${t.power} Вт`;
+    }
+    if (sel.value !== cur) sel.value = cur;
+  });
+}
+function addTemplate() {
+  templates.push({ name: 'Новый прибор', power: 100 });
+  saveTemplates(); renderTemplates(); renderTplSelect(); renderPlotDeviceSelect();
+}
+function deleteTpl(i) {
+  if (!templates[i]) return;
+  templates.splice(i, 1);
+  saveTemplates(); renderTemplates(); renderTplSelect(); renderPlotDeviceSelect();
+}
+function askResetTemplates() {
+  if (confirm('Сбросить список приборов к стандартному?')) {
+    try { localStorage.removeItem(TEMPLATES_KEY); } catch(e){}
+    templates = DEFAULT_TEMPLATES.map(t => ({ ...t }));
+    renderTemplates(); renderTplSelect(); renderPlotDeviceSelect();
+  }
+}
+
+/* ==================== ДОБАВЛЕНИЕ В ТАБЛИЦУ ==================== */
+function addFromTemplate() {
+  const sel = document.getElementById('tplSelect');
+  const qtyInput = document.getElementById('tplQty');
+  const idx = sel.value;
+  if (idx === '' || idx === null) { showToast('Выберите прибор из списка.'); return; }
+  const tpl = templates[parseInt(idx, 10)];
+  if (!tpl) { showToast('Прибор не найден.'); return; }
+  const qty = parseInt(qtyInput.value, 10) || 1;
+  if (qty <= 0) { showToast('Количество должно быть больше нуля.'); return; }
+  addRow({ name: tpl.name, power: tpl.power, qty });
+  save();
+  qtyInput.value = 1;
+}
+
+function addOneToTable(name, power) {
+  let found = null;
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const n  = tr.querySelector('.name').value.trim();
+    const p  = parseFloat(tr.querySelector('.power').value) || 0;
+    if (n === name && p === (parseFloat(power) || 0)) found = tr;
+  });
+
+  if (found) {
+    const qtyInput = found.querySelector('.qty');
+    const cur = parseInt(qtyInput.value, 10) || 0;
+    qtyInput.value = cur + 1;
+    highlight(found);
+  } else {
+    addRow({ name: name, power: power, qty: 1 });
+    const rows = tbody.querySelectorAll('tr');
+    if (rows.length) highlight(rows[rows.length - 1]);
+  }
+  save();
+}
+function highlight(tr) {
+  tr.style.transition = 'background 0.4s';
+  tr.style.background = 'rgba(255,140,0,0.25)';
+  setTimeout(() => { tr.style.background = ''; }, 350);
+}
+function addOneFromTemplate(i) {
+  const tpl = templates[i];
+  if (!tpl) return;
+  addOneToTable(tpl.name, tpl.power);
+}
+
+/* ==================== ТАБЛИЦА РАСЧЁТА ==================== */
+const tbody = document.getElementById('rows');
+
+function addRow(data = { name:'', power:'', qty:1 }) {
+  const tr = document.createElement('tr');
+
+  const tdName = document.createElement('td');
+  const inpName = document.createElement('input');
+  inpName.type = 'text'; inpName.className = 'name';
+  inpName.value = data.name; inpName.placeholder = 'Название';
+  inpName.addEventListener('input', save);
+  tdName.appendChild(inpName);
+
+  const tdPower = document.createElement('td');
+  const inpPower = document.createElement('input');
+  inpPower.type = 'number'; inpPower.className = 'power';
+  inpPower.min = '0'; inpPower.step = '1'; inpPower.value = data.power;
+  inpPower.addEventListener('input', save);
+  tdPower.appendChild(inpPower);
+
+  const tdQty = document.createElement('td');
+  const inpQty = document.createElement('input');
+  inpQty.type = 'number'; inpQty.className = 'qty';
+  inpQty.min = '1'; inpQty.step = '1'; inpQty.value = data.qty;
+  inpQty.addEventListener('input', save);
+  tdQty.appendChild(inpQty);
+
+  const tdDel = document.createElement('td');
+  const btnDel = document.createElement('button');
+  btnDel.className = 'del'; btnDel.textContent = '✕';
+  btnDel.addEventListener('click', () => { tr.remove(); save(); });
+  tdDel.appendChild(btnDel);
+
+  tr.appendChild(tdName); tr.appendChild(tdPower);
+  tr.appendChild(tdQty); tr.appendChild(tdDel);
+  tbody.appendChild(tr);
+}
+function save() {
+  const data = [];
+  tbody.querySelectorAll('tr').forEach(tr => {
+    data.push({
+      name: tr.querySelector('.name').value,
+      power: tr.querySelector('.power').value,
+      qty: tr.querySelector('.qty').value
+    });
+  });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){}
+}
+function load() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) arr.forEach(d => addRow(d));
+    } catch(e){}
+  }
+}
+
+/* ==================== ОЧИСТИТЬ ==================== */
+function askClearAll() {
+  if (tbody.querySelectorAll('tr').length === 0) {
+    showToast('Таблица расчёта уже пуста.');
+    return;
+  }
+  const banner = document.getElementById('clearConfirm');
+  banner.classList.add('show');
+  banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function cancelClear() { document.getElementById('clearConfirm').classList.remove('show'); }
+function doClearAll() {
+  document.getElementById('clearConfirm').classList.remove('show');
+  tbody.innerHTML = '';
+  state.groups = [];
+  document.getElementById('result').innerHTML = '';
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+  showToast('Расчёт очищен.');
+}
+
+/* ==================== ТОСТ ==================== */
+function showToast(message, duration = 2200) {
+  let toast = document.getElementById('__toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = '__toast';
+    toast.style.cssText = `
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(180deg, #ff8c00, #ff4500);
+      color: #fff; padding: 12px 24px; border-radius: 6px;
+      font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;
+      box-shadow: 0 0 20px rgba(255,90,0,0.7);
+      z-index: 9999; opacity: 0; transition: opacity 0.25s;
+      pointer-events: none; max-width: 90vw; text-align: center;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.style.opacity = '1';
+  clearTimeout(toast.__timer);
+  toast.__timer = setTimeout(() => { toast.style.opacity = '0'; }, duration);
+}
+
+/* ==================== ПОЯСНЕНИЯ (сворачивание) ==================== */
+function toggleExplain() {
+  const box = document.getElementById('explainBox');
+  const icon = document.getElementById('explainToggleIcon');
+  if (!box || !icon) return;
+  box.classList.toggle('expanded');
+  if (box.classList.contains('expanded')) {
+    icon.textContent = '[скрыть]';
+  } else {
+    icon.textContent = '[показать]';
+  }
+}
+
+/* ==================== НАСТРОЙКИ ==================== */
+function loadSettings() {
+  const raw = localStorage.getItem(SETTINGS_KEY);
+  if (raw) {
+    try {
+      const s = JSON.parse(raw);
+      if (s.voltage)     document.getElementById('voltage').value    = s.voltage;
+      if (s.maxCurrent)  document.getElementById('maxCurrent').value = s.maxCurrent;
+      if (s.cosPhi)      document.getElementById('cosPhi').value     = s.cosPhi;
+      if (s.simul)       document.getElementById('simul').value      = s.simul;
+      if (s.totalPhases) totalPhases = Math.max(1, Math.min(12, parseInt(s.totalPhases, 10) || 3));
+    } catch(e){}
+  }
+  document.getElementById('phaseCount').textContent = totalPhases;
+  updateGroupsLabel();
+  ['voltage','maxCurrent','cosPhi','simul'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      saveSettings(); updateLimit(); render();
+    });
+  });
+}
+function saveSettings() {
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      voltage:     document.getElementById('voltage').value,
+      maxCurrent:  document.getElementById('maxCurrent').value,
+      cosPhi:      document.getElementById('cosPhi').value,
+      simul:       document.getElementById('simul').value,
+      totalPhases: totalPhases
+    }));
+  } catch(e){}
+}
+function getVoltage()    { return parseFloat(document.getElementById('voltage').value) || 0; }
+function getMaxCurrent() { return parseFloat(document.getElementById('maxCurrent').value) || 0; }
+function getCosPhi()     { return Math.min(1, Math.max(0.1, parseFloat(document.getElementById('cosPhi').value) || 1)); }
+function getSimul()      { return Math.min(1, Math.max(0.1, parseFloat(document.getElementById('simul').value) || 1)); }
+
+/* ==================== ГРУППЫ / ФАЗЫ ==================== */
+function updateGroupsLabel() {
+  const groups = Math.floor(totalPhases / 3);
+  const extra = totalPhases % 3;
+  const gl = document.getElementById('groupsLbl');
+  if (gl) gl.textContent = groups;
+  const extraLbl = document.getElementById('extraPhasesLbl');
+  if (!extraLbl) return;
+  if (extra > 0) {
+    extraLbl.textContent = ` (+ ${extra} доп. фаза вне групп)`;
+    extraLbl.style.color = '#ffb347';
+  } else {
+    extraLbl.textContent = '';
+  }
+}
+
+function changePhases(delta) {
+  const newCount = totalPhases + delta;
+  if (newCount < 1) { showToast('Минимум 1 фаза.'); return; }
+  if (newCount > 12) { showToast('Максимум 12 фаз.'); return; }
+  totalPhases = newCount;
+  document.getElementById('phaseCount').textContent = totalPhases;
+  updateGroupsLabel();
+  saveSettings();
+  rebuildStateFromOld();
+  render();
+}
+
+function buildGroupStructure() {
+  const groups = [];
+  let remaining = totalPhases;
+  while (remaining >= 3) { groups.push(3); remaining -= 3; }
+  if (remaining > 0) groups.push(remaining);
+  return groups;
+}
+
+function rebuildStateFromOld() {
+  const oldUnits = [];
+  if (state.groups) {
+    state.groups.forEach(g => {
+      g.phaseUnits.forEach(arr => {
+        arr.forEach(u => oldUnits.push(u));
+      });
+    });
+  }
+  const structure = buildGroupStructure();
+  state.groups = structure.map(ph => ({
+    phaseUnits: Array.from({ length: ph }, () => [])
+  }));
+  oldUnits.sort((a,b) => b.power - a.power);
+  for (const u of oldUnits) placeUnit(u);
+}
+
+function placeUnit(u) {
+  if (!state.groups || state.groups.length === 0) {
+    state.groups = buildGroupStructure().map(ph => ({
+      phaseUnits: Array.from({ length: ph }, () => [])
+    }));
+  }
+  let bestG = 0, bestGSum = Infinity;
+  state.groups.forEach((g, gi) => {
+    const sum = g.phaseUnits.reduce((s, arr) => s + arr.reduce((s2,x) => s2+x.power, 0), 0);
+    if (sum < bestGSum) { bestGSum = sum; bestG = gi; }
+  });
+  const g = state.groups[bestG];
+  let bestP = 0, bestPSum = Infinity;
+  g.phaseUnits.forEach((arr, pi) => {
+    const sum = arr.reduce((s, x) => s + x.power, 0);
+    if (sum < bestPSum) { bestPSum = sum; bestP = pi; }
+  });
+  g.phaseUnits[bestP].push(u);
+}
+
+/* ==================== СОСТОЯНИЕ ==================== */
+let state = { groups: [], nextId: 1 };
+
+/* ==================== РАСЧЁТ ==================== */
+function calculate(auto = true) {
+  state.nextId = 1;
+  const units = [];
+  let invalid = false;
+
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const name  = tr.querySelector('.name').value.trim() || 'Без названия';
+    const power = parseFloat(tr.querySelector('.power').value);
+    const qty   = parseInt(tr.querySelector('.qty').value, 10);
+    if (isNaN(power) || power <= 0 || isNaN(qty) || qty <= 0) { invalid = true; return; }
+    for (let i = 0; i < qty; i++) units.push({ id: state.nextId++, name, power });
+  });
+
+  if (invalid) { showToast('Проверьте: мощность и количество должны быть больше нуля.'); return; }
+  if (units.length === 0) { showToast('Добавьте хотя бы один прибор.'); return; }
+
+  if (!auto) {
+    state.groups = [];
+    calculate(true);
+    return;
+  }
+
+  units.sort((a,b) => b.power - a.power);
+
+  const structure = buildGroupStructure();
+  state.groups = structure.map(ph => ({
+    phaseUnits: Array.from({ length: ph }, () => [])
+  }));
+
+  for (const u of units) placeUnit(u);
+
+  render();
+  showPhotoPopup();
+}
+
+function moveGroupByIds(ids, toGroup, toPhase) {
+  if (!state.groups[toGroup]) return;
+  const targetPhase = state.groups[toGroup].phaseUnits[toPhase];
+  if (!targetPhase) return;
+
+  ids.forEach(id => {
+    for (const g of state.groups) {
+      for (let pi = 0; pi < g.phaseUnits.length; pi++) {
+        const idx = g.phaseUnits[pi].findIndex(u => u.id === id);
+        if (idx >= 0) {
+          const [unit] = g.phaseUnits[pi].splice(idx, 1);
+          targetPhase.push(unit);
+          return;
+        }
+      }
+    }
+  });
+  render();
+}
+
+/* ==================== ИМЕНА ФАЗ ==================== */
+function phaseLabel(i) {
+  const letters = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+  return letters[i] || ('#' + (i+1));
+}
+function globalPhaseIndex(groupIdx, phaseIdx) {
+  let idx = 0;
+  for (let gi = 0; gi < groupIdx; gi++) idx += state.groups[gi].phaseUnits.length;
+  return idx + phaseIdx;
+}
+
+/* ==================== ПОДБОР АВТОМАТА ==================== */
+function pickBreaker(current) {
+  const standard = [6, 10, 13, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250];
+  const target = current * 1.15;
+  for (const s of standard) if (s >= target) return s;
+  return standard[standard.length - 1];
+}
+function pickCEE(current) {
+  const standard = [16, 32, 63, 125];
+  const target = current * 1.1;
+  for (const s of standard) if (s >= target) return s;
+  return 125;
+}
+function pickCable(current) {
+  if (current <= 16) return '2.5 мм²';
+  if (current <= 25) return '4 мм²';
+  if (current <= 32) return '6 мм²';
+  if (current <= 40) return '10 мм²';
+  if (current <= 50) return '10 мм²';
+  if (current <= 63) return '16 мм²';
+  if (current <= 80) return '25 мм²';
+  if (current <= 100) return '35 мм²';
+  return '50 мм² и выше';
+}
+
+/* ==================== ОТРИСОВКА ==================== */
+function render() {
+  const resultEl = document.getElementById('result');
+  if (!state.groups || state.groups.length === 0) {
+    resultEl.innerHTML = '';
+    return;
+  }
+
+  const voltage    = getVoltage();
+  const maxCurrent = getMaxCurrent();
+  const cosPhi     = getCosPhi();
+  const simul      = getSimul();
+
+  const groupTotals = state.groups.map(g =>
+    g.phaseUnits.reduce((s, arr) => s + arr.reduce((s2,x) => s2+x.power, 0), 0)
+  );
+  const grandTotal = groupTotals.reduce((s,x) => s+x, 0);
+
+  const maxG = Math.max(...groupTotals);
+  const minG = Math.min(...groupTotals);
+  const diffG = maxG - minG;
+  const diffGPct = maxG > 0 ? (diffG / maxG * 100) : 0;
+
+  resultEl.innerHTML = '';
+
+  const top = document.createElement('div');
+  top.className = 'summary';
+
+  let statusClass = 'ok', statusText = 'ОК (перекос ≤ 5%)';
+  if (diffGPct > 15) { statusClass = 'warn'; statusText = 'Большой перекос!'; }
+  else if (diffGPct > 5) { statusClass = ''; statusText = 'Приемлемо (перекос ≤ 15%)'; }
+
+  const groupsCount = state.groups.length;
+  const multiGroupLine = groupsCount > 1
+    ? `<div>Перекос между группами: <b>${diffG} Вт</b> (${diffGPct.toFixed(1)}%) — <span class="${statusClass}">${statusText}</span></div>`
+    : `<div class="muted">Одна группа — перекос между группами не считается</div>`;
+
+  top.innerHTML = `
+    <div>Всего приборов: <b>${state.groups.reduce((s,g) => s + g.phaseUnits.reduce((s2,a) => s2+a.length,0),0)}</b> шт</div>
+    <div>Общая мощность: <b>${grandTotal} Вт</b> (${(grandTotal/1000).toFixed(2)} кВт)</div>
+    <div>Всего фаз: <b>${totalPhases}</b>, групп по 3 фазы: <b>${groupsCount}</b></div>
+    ${multiGroupLine}
+  `;
+  resultEl.appendChild(top);
+
+  state.groups.forEach((g, gi) => {
+    const phasePowers = g.phaseUnits.map(arr => arr.reduce((s,x) => s+x.power, 0));
+    const gTotal = phasePowers.reduce((s,x) => s+x, 0);
+    const gMax = Math.max(...phasePowers);
+    const gMin = Math.min(...phasePowers);
+    const gDiff = gMax - gMin;
+    const gDiffPct = gMax > 0 ? (gDiff / gMax * 100) : 0;
+
+    let gMaxCur = 0;
+    phasePowers.forEach(p => {
+      if (voltage > 0 && cosPhi > 0) {
+        const cur = (p * simul) / (voltage * cosPhi);
+        if (cur > gMaxCur) gMaxCur = cur;
+      }
+    });
+    const over = gMaxCur > maxCurrent;
+
+    const breaker = pickBreaker(gMaxCur);
+    const ceeNeeded = pickCEE(gMaxCur);
+    const cable = pickCable(gMaxCur);
+
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'group-result' + (over ? ' over' : '');
+
+    const head = document.createElement('div');
+    head.className = 'head';
+
+    let gStatusClass = 'ok', gStatusText = 'ОК';
+    if (gDiffPct > 15) { gStatusClass = 'warn'; gStatusText = 'Большой перекос!'; }
+    else if (gDiffPct > 5) { gStatusClass = ''; gStatusText = 'Приемлемо'; }
+
+    const phaseNamesInGroup = g.phaseUnits.map((_, pi) => phaseLabel(globalPhaseIndex(gi, pi))).join(' / ');
+
+    head.innerHTML = `
+      <div>
+        <div class="title">🔌 Группа ${gi+1} (фазы ${phaseNamesInGroup})</div>
+        <div class="stats">
+          Суммарно: <b>${gTotal} Вт</b> (${(gTotal/1000).toFixed(2)} кВт), фаз: <b>${g.phaseUnits.length}</b><br>
+          Макс. ток фазы: <b>${gMaxCur.toFixed(1)} А</b> / лимит <b>${maxCurrent} А</b>
+          ${over ? '<span class="warn"> — ПРЕВЫШЕНИЕ!</span>' : ''}<br>
+          Перекос внутри группы: <b>${gDiff} Вт</b> (${gDiffPct.toFixed(1)}%) — <span class="${gStatusClass}">${gStatusText}</span>
+        </div>
+      </div>
+      <div class="breaker-mini-grid" style="min-width:340px;">
+        <div class="breaker-mini"><div class="lbl">Автомат</div><div class="val">${breaker} А</div></div>
+        <div class="breaker-mini"><div class="lbl">Разъём CEE</div><div class="val">${ceeNeeded} А</div></div>
+        <div class="breaker-mini"><div class="lbl">Кабель</div><div class="val">${cable}</div></div>
+      </div>
+    `;
+    groupDiv.appendChild(head);
+
+    g.phaseUnits.forEach((units, pi) => {
+      const sumPower = phasePowers[pi];
+      const cur = (voltage > 0 && cosPhi > 0) ? (sumPower * simul) / (voltage * cosPhi) : 0;
+      const phaseOver = cur > maxCurrent;
+
+      const phaseDiv = document.createElement('div');
+      phaseDiv.className = 'phase' + (phaseOver ? ' over' : '');
+
+      const gpi = globalPhaseIndex(gi, pi);
+      const h4 = document.createElement('h4');
+      h4.innerHTML = `Фаза ${phaseLabel(gpi)} — <span class="power">${sumPower} Вт</span>
+        <span class="current">(${(sumPower/1000).toFixed(2)} кВт, ${cur.toFixed(1)} А)</span>`;
+      phaseDiv.appendChild(h4);
+
+      if (phaseOver) {
+        const warn = document.createElement('div');
+        warn.className = 'warn';
+        warn.textContent = `⚠ Превышен лимит ${maxCurrent} А!`;
+        phaseDiv.appendChild(warn);
+      }
+
+      if (units.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'muted';
+        empty.textContent = '— пусто —';
+        phaseDiv.appendChild(empty);
+      } else {
+        const grouped = {};
+        units.forEach(it => {
+          const key = it.name + '|' + it.power;
+          if (!grouped[key]) grouped[key] = { name: it.name, power: it.power, ids: [] };
+          grouped[key].ids.push(it.id);
+        });
+
+        const tbl = document.createElement('table');
+        tbl.innerHTML = `<thead><tr>
+          <th>Прибор</th><th style="width:100px">Вт</th>
+          <th style="width:60px">Кол-во</th>
+          <th style="width:160px">Группа / Фаза</th>
+        </tr></thead>`;
+        const tb = document.createElement('tbody');
+
+        Object.values(grouped).forEach(grp => {
+          const tr = document.createElement('tr');
+
+          const tdName = document.createElement('td');
+          tdName.textContent = grp.name;
+
+          const tdPower = document.createElement('td');
+          tdPower.textContent = grp.power;
+
+          const tdCount = document.createElement('td');
+          tdCount.textContent = grp.ids.length;
+
+          const tdSel = document.createElement('td');
+          const sel = document.createElement('select');
+          state.groups.forEach((gg, ggi) => {
+            gg.phaseUnits.forEach((_, ppi) => {
+              const opt = document.createElement('option');
+              opt.value = ggi + '|' + ppi;
+              const gpiLabel = phaseLabel(globalPhaseIndex(ggi, ppi));
+              opt.textContent = `Гр. ${ggi+1} / ${gpiLabel}`;
+              if (ggi === gi && ppi === pi) opt.selected = true;
+              sel.appendChild(opt);
+            });
+          });
+          sel.addEventListener('change', () => {
+            const [tgi, tpi] = sel.value.split('|').map(Number);
+            moveGroupByIds(grp.ids.slice(), tgi, tpi);
+          });
+          tdSel.appendChild(sel);
+
+          tr.appendChild(tdName); tr.appendChild(tdPower);
+          tr.appendChild(tdCount); tr.appendChild(tdSel);
+          tb.appendChild(tr);
+        });
+
+        tbl.appendChild(tb);
+        phaseDiv.appendChild(tbl);
+      }
+
+      groupDiv.appendChild(phaseDiv);
+    });
+
+    resultEl.appendChild(groupDiv);
+  });
+
+  const allPhasePowers = [];
+  state.groups.forEach(g => {
+    g.phaseUnits.forEach(arr => {
+      allPhasePowers.push(arr.reduce((s,x) => s+x.power, 0));
+    });
+  });
+  let calcCurrent = 0;
+  allPhasePowers.forEach(p => {
+    if (voltage > 0 && cosPhi > 0) {
+      const cur = (p * simul) / (voltage * cosPhi);
+      if (cur > calcCurrent) calcCurrent = cur;
+    }
+  });
+
+  const breaker = pickBreaker(calcCurrent);
+  const cee = pickCEE(calcCurrent);
+  const cable = pickCable(calcCurrent);
+  const fits = calcCurrent <= maxCurrent;
+  const headroom = calcCurrent > 0 ? ((maxCurrent / calcCurrent - 1) * 100) : 0;
+
+  const breakerDiv = document.createElement('div');
+  breakerDiv.className = 'breaker';
+  breakerDiv.innerHTML = `
+    <h3>⚡ Общий подбор раздачи и автомата (по самой загруженной фазе среди всех групп)</h3>
+    <div class="grid">
+      <div class="card">
+        <div class="label">Расчётный ток на фазу</div>
+        <div class="value">${calcCurrent.toFixed(1)} А</div>
+        <div class="sub">cos φ = ${cosPhi}, одновременность ${simul}</div>
+      </div>
+      <div class="card">
+        <div class="label">Автомат</div>
+        <div class="value">${breaker} А</div>
+        <div class="sub">характеристика C</div>
+      </div>
+      <div class="card">
+        <div class="label">Разъём CEE</div>
+        <div class="value">${cee} А</div>
+        <div class="sub">5-pin, 3P+N+E</div>
+      </div>
+      <div class="card">
+        <div class="label">Кабель (медь)</div>
+        <div class="value" style="font-size:16px;">${cable}</div>
+        <div class="sub">открытая прокладка / лоток</div>
+      </div>
+    </div>
+    <div class="explain">
+      ${fits
+        ? `✅ Ток <b>${calcCurrent.toFixed(1)} А</b> укладывается в лимит <b>${maxCurrent} А</b>. Запас: <b>${headroom.toFixed(0)} %</b>.`
+        : `⚠️ Ток <b>${calcCurrent.toFixed(1)} А</b> ПРЕВЫШАЕТ лимит <b>${maxCurrent} А</b>! Нужна раздача мощнее.`}
+    </div>
+  `;
+  resultEl.appendChild(breakerDiv);
+}
+
+/* ==================== СВОРАЧИВАНИЕ ПАНЕЛЕЙ ==================== */
+function toggleTemplates() {
+  const body = document.getElementById('tplBody');
+  const label = document.getElementById('tplToggle');
+  if (body.style.display === 'none') {
+    body.style.display = '';
+    label.textContent = '[свернуть]';
+  } else {
+    body.style.display = 'none';
+    label.textContent = '[развернуть]';
+  }
+}
+
+/* ==================== ВСПЛЫВАЮЩЕЕ ФОТО С ОБЛАЧКОМ ==================== */
+/* Фото по ссылке (не base64) */
+const PHOTO_URL = 'https://i.postimg.cc/85KB2RzY/qe4CSOg-MAbyo2qmtp3sdm-Gt1hs-SRcwtw-Ky7Fwx8EPT1mwzild8hnk1t-VONu4Np-HMkx-NEBDM6C8hvch9Vpd0rpx.jpg';
+
+let photoPopupTimer = null;
+
+function showPhotoPopup() {
+  const popup = document.getElementById('photoPopup');
+  const img = document.getElementById('photoPopupImg');
+  if (!popup || !img) return;
+
+  img.src = PHOTO_URL;
+  popup.classList.add('show');
+
+  clearTimeout(photoPopupTimer);
+  photoPopupTimer = setTimeout(() => {
+    popup.classList.remove('show');
+  }, 4500);
+}
+
+function hidePhotoPopup() {
+  const popup = document.getElementById('photoPopup');
+  if (popup) popup.classList.remove('show');
+  clearTimeout(photoPopupTimer);
+}
+
+/* ==================== ПЕРЕКЛЮЧЕНИЕ МОБИЛЬНОЙ / ПК ВЕРСИИ ==================== */
+function applyViewMode(isMobile) {
+  const body = document.body;
+  const btn = document.getElementById('viewToggle');
+  if (isMobile) {
+    body.classList.add('mobile');
+    if (btn) btn.textContent = '🖥 Версия для ПК';
+  } else {
+    body.classList.remove('mobile');
+    if (btn) btn.textContent = '📱 Мобильная версия';
+  }
+}
+
+function toggleMobile() {
+  const isMobileNow = document.body.classList.contains('mobile');
+  const next = !isMobileNow;
+  applyViewMode(next);
+  try { localStorage.setItem('phase_view_mobile', next ? '1' : '0'); } catch(e){}
+}
+
+(function initViewMode() {
+  let saved = null;
+  try { saved = localStorage.getItem('phase_view_mobile'); } catch(e){}
+  if (saved === '0')      applyViewMode(false);
+  else                    applyViewMode(true);
+})();
+
+/* ==================== СТАРТ ==================== */
+loadTemplates();
+loadSettings();
+load();
+loadPlot();
+</script>
+
+</body>
+</html>
