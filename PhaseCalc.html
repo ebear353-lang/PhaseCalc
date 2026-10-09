@@ -3,7 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Калькулятор распределения по фазам</title>
+<title>PhaseCalc — Распределение по фазам</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff4500">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIiB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjUwJSIgY3k9IjMwJSIgcj0iODAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZmY4YzAwIi8+PHN0b3Agb2Zmc2V0PSI2MCUiIHN0b3AtY29sb3I9IiNmZjQ1MDAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxYTBkMDYiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iYm9sdCIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmY1ZTAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZmQ5YTAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSJ1cmwoI2JnKSIvPjxwYXRoIGQ9Ik0xMDggMjQgTDYwIDExMCBMOTIgMTEwIEw4MCAxNjggTDE0MCA3NiBMMTA0IDc2IFoiIGZpbGw9InVybCgjYm9sdCkiIHN0cm9rZT0iIzFhMGQwNiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIiB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjUwJSIgY3k9IjMwJSIgcj0iODAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZmY4YzAwIi8+PHN0b3Agb2Zmc2V0PSI2MCUiIHN0b3AtY29sb3I9IiNmZjQ1MDAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxYTBkMDYiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iYm9sdCIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmY1ZTAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZmQ5YTAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSJ1cmwoI2JnKSIvPjxwYXRoIGQ9Ik0xMDggMjQgTDYwIDExMCBMOTIgMTEwIEw4MCAxNjggTDE0MCA3NiBMMTA0IDc2IFoiIGZpbGw9InVybCgjYm9sdCkiIHN0cm9rZT0iIzFhMGQwNiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PhaseCalc">
 <style>
   /* ============ ОГНЕННАЯ ТЕМА ============ */
   body {
@@ -91,11 +98,18 @@
   button.ghost { background:#3d1a08; color:#ffb347; border:1px solid #7a3a10; }
   button.ghost:hover { background:#5a2a10; }
 
-  .view-toggle {
+  .top-buttons {
     position: fixed;
     top: 12px;
     right: 12px;
     z-index: 5000;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .view-toggle {
     padding: 8px 14px;
     font-size: 13px;
     font-weight: bold;
@@ -110,6 +124,27 @@
   .view-toggle:hover {
     background: linear-gradient(180deg, #ff8c00, #ff4500);
     color: #fff;
+  }
+  .install-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    background: linear-gradient(180deg, #ff8c00, #ff4500);
+    color: #fff;
+    border: 1px solid #ffb347;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(255,94,0,0.7);
+    margin: 0;
+    animation: installPulse 2s ease-in-out infinite;
+  }
+  .install-btn:hover {
+    background: linear-gradient(180deg, #ffa030, #ff5500);
+    box-shadow: 0 0 20px rgba(255,94,0,0.9);
+  }
+  @keyframes installPulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.04); }
   }
 
   .panel {
@@ -364,7 +399,7 @@
   .collapsible { cursor:pointer; user-select:none; }
   .collapsible:hover { color:#ff8c00; }
 
-  /* ============ БЛОК ПОЯСНЕНИЙ (сворачиваемый) ============ */
+  /* ============ БЛОК ПОЯСНЕНИЙ ============ */
   .explain-box {
     background: linear-gradient(180deg, #3d1a08, #2a1408);
     border: 2px solid #7a3a10;
@@ -456,7 +491,7 @@
     gap: 6px;
   }
 
-  /* ============ ВСПЛЫВАЮЩЕЕ ФОТО С ОБЛАЧКОМ ============ */
+  /* ============ ВСПЛЫВАЮЩЕЕ ФОТО ============ */
   .photo-popup {
     display: none;
     position: fixed;
@@ -475,13 +510,7 @@
     transform: translateY(-50%) translateX(0);
     pointer-events: auto;
   }
-
-  .photo-popup-inner {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
+  .photo-popup-inner { display: flex; align-items: flex-start; gap: 8px; }
   .photo-bubble {
     position: relative;
     background: linear-gradient(180deg, #fff5e0, #ffe8d0);
@@ -518,12 +547,10 @@
     border-left: 12px solid #fff5e0;
     z-index: 1;
   }
-
   @keyframes bubblePop {
     0%   { transform: scale(0.5); opacity: 0; }
     100% { transform: scale(1);   opacity: 1; }
   }
-
   .photo-popup img {
     display: block;
     width: 130px;
@@ -537,12 +564,10 @@
     transition: transform 0.15s;
   }
   .photo-popup img:hover { transform: scale(1.05); }
-
   @keyframes photoPop {
     0%   { transform: scale(0.4) rotate(-15deg); opacity: 0; }
     100% { transform: scale(1)   rotate(0deg);  opacity: 1; }
   }
-
   .photo-popup .photo-close {
     position: absolute;
     top: 0;
@@ -576,190 +601,75 @@
   ::-webkit-scrollbar-thumb:hover { background:#ff5e00; }
 
   /* ============ МОБИЛЬНАЯ ВЕРСИЯ ============ */
-  body.mobile {
-    margin: 8px;
-    font-size: 14px;
-    padding-top: 50px;
-  }
+  body.mobile { margin: 8px; font-size: 14px; padding-top: 60px; }
   body.mobile h1 { font-size: 18px; }
   body.mobile h2 { font-size: 14px; margin-top: 14px; }
-
   body.mobile .panel,
   body.mobile .settings,
   body.mobile .summary,
   body.mobile .breaker,
   body.mobile .group-result,
   body.mobile .confirm-banner,
-  body.mobile .explain-box {
-    max-width: 100%;
-    margin-top: 10px;
-  }
+  body.mobile .explain-box { max-width: 100%; margin-top: 10px; }
   body.mobile .panel,
   body.mobile .settings,
   body.mobile .summary,
   body.mobile .breaker,
   body.mobile .group-result,
-  body.mobile .confirm-banner {
-    padding: 10px;
-  }
+  body.mobile .confirm-banner { padding: 10px; }
   body.mobile .explain-box .explain-head { padding: 12px 14px; }
   body.mobile .explain-box .explain-body { padding: 0 14px 12px 14px; }
-
   body.mobile table { max-width: 100%; }
-  body.mobile th, body.mobile td {
-    font-size: 12px;
-    padding: 4px 5px;
-  }
-
+  body.mobile th, body.mobile td { font-size: 12px; padding: 4px 5px; }
   body.mobile input[type="text"],
-  body.mobile input[type="number"] {
-    padding: 8px;
-    font-size: 16px;
-  }
-  body.mobile button {
-    padding: 10px 14px;
-    font-size: 15px;
-    margin-top: 6px;
-  }
-  body.mobile button.small {
-    padding: 6px 10px;
-    font-size: 13px;
-  }
-  body.mobile button.plus {
-    padding: 4px 14px;
-    font-size: 18px;
-  }
-
-  body.mobile .settings {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
+  body.mobile input[type="number"] { padding: 8px; font-size: 16px; }
+  body.mobile button { padding: 10px 14px; font-size: 15px; margin-top: 6px; }
+  body.mobile button.small { padding: 6px 10px; font-size: 13px; }
+  body.mobile button.plus { padding: 4px 14px; font-size: 18px; }
+  body.mobile .settings { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
   body.mobile .settings label,
-  body.mobile .settings .field-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 4px;
-    font-size: 14px;
-  }
+  body.mobile .settings .field-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 4px; font-size: 14px; }
   body.mobile .settings input { width: 100%; }
-
-  body.mobile .panel .row {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-  body.mobile .panel select {
-    min-width: 100%;
-    width: 100%;
-    padding: 10px;
-    font-size: 15px;
-  }
+  body.mobile .panel .row { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+  body.mobile .panel select { min-width: 100%; width: 100%; padding: 10px; font-size: 15px; }
   body.mobile .panel input { width: 100%; }
-
-  body.mobile .actions-row {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 10px;
-  }
-  body.mobile .actions-row button {
-    width: 100%;
-    margin-top: 0;
-    padding: 12px;
-    font-size: 15px;
-  }
-
-  body.mobile .plot-toolbar {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-  body.mobile .plot-toolbar label {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 4px;
-  }
-  body.mobile .plot-toolbar input[type="file"] {
-    padding: 8px;
-    font-size: 14px;
-  }
+  body.mobile .actions-row { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  body.mobile .actions-row button { width: 100%; margin-top: 0; padding: 12px; font-size: 15px; }
+  body.mobile .plot-toolbar { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+  body.mobile .plot-toolbar label { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+  body.mobile .plot-toolbar input[type="file"] { padding: 8px; font-size: 14px; }
   body.mobile .plot-toolbar select { width: 100%; }
   body.mobile .plot-toolbar button { width: 100%; }
-
-  body.mobile .group-result .head {
-    flex-direction: column;
-    gap: 8px;
-  }
+  body.mobile .group-result .head { flex-direction: column; gap: 8px; }
   body.mobile .breaker-mini-grid { min-width: 0 !important; }
-
-  body.mobile .breaker .grid {
-    grid-template-columns: 1fr;
-  }
-
-  body.mobile .phase select {
-    padding: 6px 8px;
-    font-size: 14px;
-    width: 100%;
-  }
-
-  body.mobile .confirm-banner {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  body.mobile .confirm-banner button {
-    width: 100%;
-  }
-
-  body.mobile .view-toggle {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
+  body.mobile .breaker .grid { grid-template-columns: 1fr; }
+  body.mobile .phase select { padding: 6px 8px; font-size: 14px; width: 100%; }
+  body.mobile .confirm-banner { flex-direction: column; align-items: stretch; }
+  body.mobile .confirm-banner button { width: 100%; }
+  body.mobile .top-buttons { top: 8px; right: 8px; flex-direction: column; align-items: flex-end; }
+  body.mobile .view-toggle { padding: 6px 10px; font-size: 12px; }
+  body.mobile .install-btn { padding: 6px 10px; font-size: 12px; }
   body.mobile #__toast {
-    left: 8px !important;
-    right: 8px !important;
-    transform: none !important;
-    max-width: none !important;
-    text-align: center;
+    left: 8px !important; right: 8px !important;
+    transform: none !important; max-width: none !important; text-align: center;
   }
-
   body.mobile .photo-popup {
-    right: 8px;
-    left: 8px;
-    top: auto;
-    bottom: 20px;
-    transform: translateY(40px);
-    max-width: none;
+    right: 8px; left: 8px; top: auto; bottom: 20px;
+    transform: translateY(40px); max-width: none;
   }
-  body.mobile .photo-popup.show {
-    transform: translateY(0);
-  }
-  body.mobile .photo-popup-inner {
-    justify-content: center;
-  }
-  body.mobile .photo-popup img {
-    width: 90px;
-    height: 90px;
-  }
-  body.mobile .photo-bubble {
-    font-size: 13px;
-    padding: 10px 12px;
-    max-width: 170px;
-  }
-  body.mobile .photo-popup .photo-close {
-    right: 110px;
-  }
+  body.mobile .photo-popup.show { transform: translateY(0); }
+  body.mobile .photo-popup-inner { justify-content: center; }
+  body.mobile .photo-popup img { width: 90px; height: 90px; }
+  body.mobile .photo-bubble { font-size: 13px; padding: 10px 12px; max-width: 170px; }
+  body.mobile .photo-popup .photo-close { right: 110px; }
 </style>
 </head>
 <body>
 
-<button class="view-toggle" id="viewToggle" onclick="toggleMobile()">🖥 Версия для ПК</button>
+<div class="top-buttons">
+  <button class="install-btn" id="installBtn" onclick="installPWA()" style="display:none;">📲 Установить</button>
+  <button class="view-toggle" id="viewToggle" onclick="toggleMobile()">🖥 Версия для ПК</button>
+</div>
 
 <h1>🔥 Распределение приборов по фазам</h1>
 
@@ -915,7 +825,7 @@
 
 <div id="result" class="result"></div>
 
-<!-- ============ БЛОК ПОЯСНЕНИЙ (сворачиваемый) ============ -->
+<!-- ============ БЛОК ПОЯСНЕНИЙ ============ -->
 <div class="explain-box" id="explainBox">
   <div class="explain-head" onclick="toggleExplain()">
     <h3>📖 Пояснения к расчёту</h3>
@@ -931,14 +841,14 @@
         Чем ниже cos φ — тем больше ток при той же мощности.
       </div>
       <ul>
-        <li>Лампы накаливания, галоген → <b>cos φ = 1.0</b> (чисто активная нагрузка)</li>
+        <li>Лампы накаливания, галоген → <b>cos φ = 1.0</b></li>
         <li>LED-приборы с качественным блоком питания (PFC) → <b>0.9–0.95</b></li>
         <li>Дешёвые LED, строб, блиндер с импульсными БП без PFC → <b>0.5–0.7</b></li>
-        <li>Если не знаете точно — ставьте <b>1.0</b> для расчёта «по минимуму», но с запасом по раздаче</li>
+        <li>Если не знаете точно — ставьте <b>1.0</b>, но с запасом по раздаче</li>
       </ul>
       <div class="example">
         <b>Пример:</b> прибор 1000 Вт при cos φ = 1.0 даёт ток <b>4.3 А</b>, а при cos φ = 0.6 — уже <b>7.2 А</b>
-        при том же напряжении. Ток больше → нужен толще кабель и автомат мощнее.
+        при том же напряжении.
       </div>
     </div>
 
@@ -947,17 +857,15 @@
       <div class="desc">
         Доля приборов, которые реально включены одновременно. В световом оборудовании
         редко бывает так, что ВСЕ приборы горят на полной мощности в один момент.
-        Часть мигает, часть в паузе, часть работает на пониженной яркости.
       </div>
       <ul>
-        <li><b>1.0</b> — все приборы включены одновременно (максимальный расчёт, «по-максимуму»)</li>
+        <li><b>1.0</b> — все приборы включены одновременно</li>
         <li><b>0.8</b> — типичная оценка для шоу, где идёт динамика</li>
         <li><b>0.7</b> — если уверены, что часть приборов работает в паузах</li>
       </ul>
       <div class="example">
         <b>Пример:</b> 10 приборов по 1000 Вт, одновременность 0.8 → расчёт идёт по <b>8000 Вт</b>,
-        а не по 10000 Вт. Это даёт экономию по автомату и кабелю. Но если ошиблись — автомат может выбить.
-        <b>Для ответственных мероприятий всегда ставьте 1.0 или 0.9.</b>
+        а не по 10000 Вт. <b>Для ответственных мероприятий всегда ставьте 1.0 или 0.9.</b>
       </div>
     </div>
 
@@ -965,53 +873,42 @@
       <div class="title">Максимальный ток на фазу</div>
       <div class="desc">
         Это предельный ток, который выдерживает <b>автомат</b> или <b>разъём (CEE)</b> на каждой фазе.
-        Калькулятор проверяет: не превышает ли ток фазы этот лимит, и если превышает — подсвечивает красным.
       </div>
       <ul>
-        <li>Автомат C16 / разъём CEE 16A → <b>16 А</b> (≈ 3.7 кВт при 230 В)</li>
-        <li>Автомат C32 / разъём CEE 32A → <b>32 А</b> (≈ 7.4 кВт при 230 В)</li>
-        <li>Автомат C63 / разъём CEE 63A → <b>63 А</b> (≈ 14.5 кВт при 230 В)</li>
-        <li>CEE 125A → <b>125 А</b> (≈ 28.7 кВт при 230 В)</li>
+        <li>Автомат C16 / CEE 16A → <b>16 А</b> (≈ 3.7 кВт при 230 В)</li>
+        <li>Автомат C32 / CEE 32A → <b>32 А</b> (≈ 7.4 кВт)</li>
+        <li>Автомат C63 / CEE 63A → <b>63 А</b> (≈ 14.5 кВт)</li>
+        <li>CEE 125A → <b>125 А</b> (≈ 28.7 кВт)</li>
       </ul>
       <div class="example">
-        <b>Пример:</b> на фазе 5 кВт приборов, cos φ = 1.0, напряжение 230 В →
-        ток = 5000 / 230 = <b>21.7 А</b>. Это значит, что CEE 16A <b>не подойдёт</b> —
-        нужен минимум 32A, а лучше 32A с запасом.
+        <b>Пример:</b> на фазе 5 кВт → ток = 5000 / 230 = <b>21.7 А</b>. CEE 16A <b>не подойдёт</b>.
       </div>
     </div>
 
     <div class="item">
       <div class="title">Как это всё работает вместе</div>
-      <div class="desc">
-        Формула расчёта тока на фазу:
-      </div>
       <div class="example">
         <b>I = (P_фазы × Одновременность) / (U_фазное × cos φ)</b>
         <br><br>
-        Например: P_фазы = 5000 Вт, одновременность = 0.9, U = 230 В, cos φ = 0.9.
+        Пример: P_фазы = 5000 Вт, одновременность = 0.9, U = 230 В, cos φ = 0.9.
         <br>
         I = (5000 × 0.9) / (230 × 0.9) = 4500 / 207 = <b>21.7 А</b>.
-        <br>
-        Автомат: 25 А (с запасом 15%). Разъём CEE: 32 А. Кабель: 4 мм².
       </div>
     </div>
 
     <div class="item">
       <div class="title">💡 Простой совет</div>
-      <div class="desc">
-        Если не хотите глубоко разбираться — действуйте так:
-      </div>
       <ul>
-        <li><b>cos φ</b> — ставьте <b>1.0</b>, если приборы в основном лампы накаливания / галоген; <b>0.9</b> для нормальных LED; <b>0.7</b> для дешёвых LED/стробов без PFC.</li>
-        <li><b>Одновременность</b> — для ответственной работы <b>1.0</b>. Если знаете, что шоу динамичное — <b>0.9</b>.</li>
-        <li><b>Макс. ток на фазу</b> — ставьте по <b>номиналу автомата или разъёма</b>, который собираетесь использовать (16, 32, 63, 125 А).</li>
+        <li><b>cos φ</b> — 1.0 для ламп накаливания / галогена; 0.9 для LED с PFC; 0.7 для дешёвых LED.</li>
+        <li><b>Одновременность</b> — 1.0 для ответственной работы; 0.9 для динамичного шоу.</li>
+        <li><b>Макс. ток на фазу</b> — по номиналу автомата или разъёма (16, 32, 63, 125 А).</li>
       </ul>
     </div>
 
   </div>
 </div>
 
-<!-- ============ ВСПЛЫВАЮЩЕЕ ФОТО С ОБЛАЧКОМ ============ -->
+<!-- ============ ФОТО С ОБЛАЧКОМ ============ -->
 <div class="photo-popup" id="photoPopup">
   <button class="photo-close" onclick="hidePhotoPopup()" title="Закрыть">✕</button>
   <div class="photo-popup-inner">
@@ -1128,7 +1025,7 @@ function redrawMarkers() {
       plotMarkers.splice(i, 1);
       savePlot();
       redrawMarkers();
-      showToast('Метка удалена. (Прибор в таблице — вручную)');
+      showToast('Метка удалена.');
     });
     overlay.appendChild(el);
   });
@@ -1176,7 +1073,7 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
-/* ==================== ЗАГРУЗКА ШАБЛОНОВ ==================== */
+/* ==================== ШАБЛОНЫ ==================== */
 function loadTemplates() {
   templates = [];
   try {
@@ -1301,7 +1198,7 @@ function askResetTemplates() {
   }
 }
 
-/* ==================== ДОБАВЛЕНИЕ В ТАБЛИЦУ ==================== */
+/* ==================== ДОБАВЛЕНИЕ ==================== */
 function addFromTemplate() {
   const sel = document.getElementById('tplSelect');
   const qtyInput = document.getElementById('tplQty');
@@ -1315,7 +1212,6 @@ function addFromTemplate() {
   save();
   qtyInput.value = 1;
 }
-
 function addOneToTable(name, power) {
   let found = null;
   tbody.querySelectorAll('tr').forEach(tr => {
@@ -1448,17 +1344,13 @@ function showToast(message, duration = 2200) {
   toast.__timer = setTimeout(() => { toast.style.opacity = '0'; }, duration);
 }
 
-/* ==================== ПОЯСНЕНИЯ (сворачивание) ==================== */
+/* ==================== ПОЯСНЕНИЯ ==================== */
 function toggleExplain() {
   const box = document.getElementById('explainBox');
   const icon = document.getElementById('explainToggleIcon');
   if (!box || !icon) return;
   box.classList.toggle('expanded');
-  if (box.classList.contains('expanded')) {
-    icon.textContent = '[скрыть]';
-  } else {
-    icon.textContent = '[показать]';
-  }
+  icon.textContent = box.classList.contains('expanded') ? '[скрыть]' : '[показать]';
 }
 
 /* ==================== НАСТРОЙКИ ==================== */
@@ -1497,6 +1389,7 @@ function getVoltage()    { return parseFloat(document.getElementById('voltage').
 function getMaxCurrent() { return parseFloat(document.getElementById('maxCurrent').value) || 0; }
 function getCosPhi()     { return Math.min(1, Math.max(0.1, parseFloat(document.getElementById('cosPhi').value) || 1)); }
 function getSimul()      { return Math.min(1, Math.max(0.1, parseFloat(document.getElementById('simul').value) || 1)); }
+function updateLimit() { /* не используется, оставлено для совместимости */ }
 
 /* ==================== ГРУППЫ / ФАЗЫ ==================== */
 function updateGroupsLabel() {
@@ -1641,7 +1534,7 @@ function globalPhaseIndex(groupIdx, phaseIdx) {
   return idx + phaseIdx;
 }
 
-/* ==================== ПОДБОР АВТОМАТА ==================== */
+/* ==================== ПОДБОР ==================== */
 function pickBreaker(current) {
   const standard = [6, 10, 13, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250];
   const target = current * 1.15;
@@ -1904,7 +1797,7 @@ function render() {
   resultEl.appendChild(breakerDiv);
 }
 
-/* ==================== СВОРАЧИВАНИЕ ПАНЕЛЕЙ ==================== */
+/* ==================== СВОРАЧИВАНИЕ ==================== */
 function toggleTemplates() {
   const body = document.getElementById('tplBody');
   const label = document.getElementById('tplToggle');
@@ -1917,8 +1810,7 @@ function toggleTemplates() {
   }
 }
 
-/* ==================== ВСПЛЫВАЮЩЕЕ ФОТО С ОБЛАЧКОМ ==================== */
-/* Фото по ссылке (не base64) */
+/* ==================== ФОТО ==================== */
 const PHOTO_URL = 'https://i.postimg.cc/85KB2RzY/qe4CSOg-MAbyo2qmtp3sdm-Gt1hs-SRcwtw-Ky7Fwx8EPT1mwzild8hnk1t-VONu4Np-HMkx-NEBDM6C8hvch9Vpd0rpx.jpg';
 
 let photoPopupTimer = null;
@@ -1943,7 +1835,7 @@ function hidePhotoPopup() {
   clearTimeout(photoPopupTimer);
 }
 
-/* ==================== ПЕРЕКЛЮЧЕНИЕ МОБИЛЬНОЙ / ПК ВЕРСИИ ==================== */
+/* ==================== МОБИЛЬНАЯ / ПК ВЕРСИЯ ==================== */
 function applyViewMode(isMobile) {
   const body = document.body;
   const btn = document.getElementById('viewToggle');
@@ -1969,6 +1861,62 @@ function toggleMobile() {
   if (saved === '0')      applyViewMode(false);
   else                    applyViewMode(true);
 })();
+
+/* ==================== PWA: УСТАНОВКА + SERVICE WORKER ==================== */
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = '';
+});
+
+function installPWA() {
+  const btn = document.getElementById('installBtn');
+
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+    if (btn) btn.style.display = 'none';
+    return;
+  }
+
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then((choice) => {
+      if (choice.outcome === 'accepted') {
+        if (btn) btn.style.display = 'none';
+        showToast('Приложение установлено! Ищите иконку PhaseCalc на домашнем экране.');
+      }
+      deferredInstallPrompt = null;
+    });
+    return;
+  }
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+  if (isIOS || isSafari) {
+    showToast('Нажмите «Поделиться» → «На экран Домой»', 5000);
+  } else {
+    showToast('В меню браузера выберите «Установить приложение» или «Добавить на главный экран»', 5000);
+  }
+}
+
+window.addEventListener('load', () => {
+  const btn = document.getElementById('installBtn');
+  if (!btn) return;
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+    btn.style.display = 'none';
+  }
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch((err) => {
+      console.warn('Service Worker не зарегистрирован:', err);
+    });
+  });
+}
 
 /* ==================== СТАРТ ==================== */
 loadTemplates();
